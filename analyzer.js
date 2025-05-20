@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Variables de estado
     let selectedSource = null;
     let isAnalyzing = false;
+    let progressInterval = null;
     
     // Inicializar la aplicación
     init();
@@ -128,6 +129,41 @@ Las consecuencias del cambio climático incluyen el aumento del nivel del mar, e
         }
     }
     
+    // Actualizar la barra de progreso 3D
+    function updateProgressBar3D(percent) {
+        const progressFill = document.querySelector('.progress-bar-3d-fill');
+        const progressText = document.querySelector('.progress-text-3d');
+        
+        if (progressFill && progressText) {
+            progressFill.style.width = `${percent}%`;
+            progressText.textContent = `${percent}%`;
+        }
+    }
+    
+    // Iniciar animación de progreso 3D
+    function startProgressAnimation3D() {
+        // Limpiar intervalo anterior si existe
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+        
+        // Reiniciar progreso
+        updateProgressBar3D(0);
+        
+        // Configurar intervalo para actualizar cada segundo (10 pasos en 10 segundos)
+        let progress = 0;
+        progressInterval = setInterval(() => {
+            progress += 10;
+            updateProgressBar3D(progress);
+            
+            // Detener cuando llegue al 100%
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+        }, 1000);
+    }
+    
     // Analizar texto
     function analyzeText() {
         console.log("Función analyzeText ejecutada");
@@ -159,8 +195,26 @@ Las consecuencias del cambio climático incluyen el aumento del nivel del mar, e
         
         // Mostrar animación de carga
         if (loadingSection) {
+            // Crear o actualizar el contenido de la sección de carga con la barra de progreso 3D
+            loadingSection.innerHTML = `
+                <div class="loading-animation">
+                    <div class="progress-bar-3d">
+                        <div class="progress-bar-3d-container">
+                            <div class="progress-bar-3d-fill"></div>
+                            <div class="progress-bar-3d-shine"></div>
+                            <div class="progress-text-3d">0%</div>
+                        </div>
+                        <div class="progress-bar-3d-reflection"></div>
+                    </div>
+                </div>
+                <div class="loading-text">Analizando texto...</div>
+            `;
+            
             loadingSection.style.display = 'block';
-            console.log("Animación de carga mostrada");
+            console.log("Animación de carga 3D mostrada");
+            
+            // Iniciar animación de progreso 3D
+            startProgressAnimation3D();
         } else {
             console.error("No se encontró la sección de carga");
         }
@@ -638,6 +692,13 @@ Las consecuencias del cambio climático incluyen el aumento del nivel del mar, e
             comparisonSection.remove();
             console.log("Sección de comparación eliminada");
         }
+        
+        // Eliminar sección de humanización si existe
+        const humanizationSection = document.getElementById('humanization-section');
+        if (humanizationSection) {
+            humanizationSection.remove();
+            console.log("Sección de humanización eliminada");
+        }
     }
 });
 
@@ -673,10 +734,20 @@ function showLoadingAnimation(message = 'Analizando texto...') {
         return;
     }
     
-    const loadingText = loadingSection.querySelector('.loading-text');
-    if (loadingText) {
-        loadingText.textContent = message;
-    }
+    // Crear o actualizar el contenido de la sección de carga con la barra de progreso 3D
+    loadingSection.innerHTML = `
+        <div class="loading-animation">
+            <div class="progress-bar-3d">
+                <div class="progress-bar-3d-container">
+                    <div class="progress-bar-3d-fill"></div>
+                    <div class="progress-bar-3d-shine"></div>
+                    <div class="progress-text-3d">0%</div>
+                </div>
+                <div class="progress-bar-3d-reflection"></div>
+            </div>
+        </div>
+        <div class="loading-text">${message}</div>
+    `;
     
     loadingSection.style.display = 'block';
 }
